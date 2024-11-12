@@ -2,10 +2,11 @@ services:
   flask-app:
     image: fjiabinc/notdiamond2api
     ports:
-      - "3000:3000"
+      - "5007:3000"
     environment:
       - PORT=3000
-      - AUTH_EMAIL=your_email@example.com
-      - AUTH_PASSWORD=your_password
       - AUTH_ENABLED=true
       - AUTH_TOKEN=your_token_here
+    volumes:
+      - ./accounts.txt:/app/accounts.txt:ro
+      - ./workers.js:/app/workers.js:ro
