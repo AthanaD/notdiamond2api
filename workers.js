@@ -120,6 +120,9 @@
             return null;
         }
     }
+
+    let currentCredentialIndex = 0;
+
     async function fetchLogin() {
         try {
             if (API_KEY === null) {
@@ -131,11 +134,23 @@
                 "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
                 "Content-Type": "application/json"
             };
+
+            const credentialsArray = AUTH_CREDENTIALS.split(',');
+
+            
+            const credential = credentialsArray[currentCredentialIndex];
+            currentCredentialIndex = (currentCredentialIndex + 1) % credentialsArray.length;
+            const [email, password] = credential.split(':');
             const data = {
-                "email": AUTH_EMAIL,
-                "password": AUTH_PASSWORD,
+                "email": email,
+                "password": password,
                 "gotrue_meta_security": {}
             };
+
+            //console.log("所有账号:", credentialsArray);
+            //console.log("轮询的账号:", credentialsArray[currentCredentialIndex]);
+            //console.log(currentCredentialIndex)
+            
             const loginResponse = await fetch(url, {
                 method: "POST",
                 headers,
@@ -150,11 +165,13 @@
                 console.error("Login failed:", loginResponse.statusText);
                 return false;
             }
+
         } catch (error) {
             console.error("Error during login fetch:", error);
             return false;
         }
     }
+
     async function refreshUserToken() {
         try {
             if (API_KEY === null) {
@@ -210,20 +227,33 @@
         });
     }
 
-    // src/index.js
+    
     addEventListener("fetch", (event) => {
         handleRequest(event);
     });
     async function handleRequest(event) {
+        console.log("Request URL:", event.request.url);
         const url = new URL(event.request.url);
-        if (event.request.method === "OPTIONS") {
+        if (url.pathname === "/"){
+            return respondWithWelcome(event);
+        }else if (event.request.method === "OPTIONS") {
             return respondWithOptions(event);
         } else if (url.pathname === "/v1/chat/completions") {
             return handleCompletions(event);
+        } else if (url.pathname === "/v1/models") {
+            return handleModels(event);
         } else {
             return respondWithNotFound(event);
         }
     }
+
+    function respondWithWelcome(event) {
+        return event.respondWith(new Response("Welcome to the NotDiamond API!", {
+            status: 200,
+            headers: { "Content-Type": "text/plain" }
+        }));
+    }
+    
     function respondWithOptions(event) {
         return event.respondWith(new Response(null, {
             status: 204,
@@ -234,6 +264,7 @@
             }
         }));
     }
+
     function handleCompletions(event) {
         if (AUTH_ENABLED) {
             const authHeader = event.request.headers.get("Authorization");
@@ -247,12 +278,33 @@
         }
         event.respondWith(completions(event.request));
     }
+
+    async function handleModels(event) {
+        const models = Object.keys(MODEL_INFO).map(model => ({
+            id: model,
+            provider: MODEL_INFO[model].provider
+        }));
+
+        console.log(JSON.stringify(models));
+        
+        return event.respondWith(
+            new Response(JSON.stringify(models), {
+              status: 200,
+              headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+              }
+            })
+          );
+    }
+
     function respondWithNotFound(event) {
         return event.respondWith(new Response("Not Found", {
             status: 404,
             headers: { "Access-Control-Allow-Origin": "*" }
         }));
     }
+
     async function validateUser() {
         if (!USER_INFO) {
             if (!await fetchLogin()) {
@@ -461,4 +513,4 @@
         return new Response(JSON.stringify(openaiResponse), { headers: response.headers });
     }
 })();
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index.js.mapels
