@@ -69,7 +69,12 @@
 
 ## 更新日志
 2024-11-16
-1. 添加了多账号轮询
+1. Cloudflare Workers 部署方式添加了多账号轮询,，支持 3 个环境变量：
+   - `AUTH_ENABLED`（可选）
+   - `AUTH_VALUE`（可选，需搭配 `AUTH_ENABLED`）
+   - `AUTH_CREDENTIALS`（必填）
+     格式为email1:password1,account2:password2
+
 2. 修复了/v1/modles无法获取模型列表
 3. 修复cloudflare workers部署后显示not found
 
@@ -93,8 +98,8 @@
 2. 添加 Cloudflare Workers 部署方式，支持 4 个环境变量：
    - `AUTH_ENABLED`（可选）
    - `AUTH_VALUE`（可选，需搭配 `AUTH_ENABLED`）
-   - `AUTH_CREDENTIALS`（必填）
-     格式为email1:password1,account2:password2
+   - `AUTH_EMAIL`（必填）
+   - `AUTH_PASSWORD`（必填）
 
 ## 许可证
 
