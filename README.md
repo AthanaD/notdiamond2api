@@ -1,3 +1,4 @@
+在原作者基础上添加了多账号轮询，修复了/v1/modles无法获取模型列表，修复cloudflare workers部署后显示not found
 # notdiamond2api
 
 这是一个基于 Flask 的 聊天代理服务，用于将请求转发到 chat.notdiamond.ai 服务器。
@@ -67,6 +68,11 @@
 
 
 ## 更新日志
+2024-11-16
+1. 添加了多账号轮询
+2. 修复了/v1/modles无法获取模型列表
+3. 修复cloudflare workers部署后显示not found
+
 2024-11-12
 1. 更新模型映射
 
@@ -87,8 +93,8 @@
 2. 添加 Cloudflare Workers 部署方式，支持 4 个环境变量：
    - `AUTH_ENABLED`（可选）
    - `AUTH_VALUE`（可选，需搭配 `AUTH_ENABLED`）
-   - `AUTH_EMAIL`（必填）
-   - `AUTH_PASSWORD`（必填）
+   - `AUTH_CREDENTIALS`（必填）
+     格式为email1:password1,account2:password2
 
 ## 许可证
 
