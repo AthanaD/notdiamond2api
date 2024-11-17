@@ -209,6 +209,7 @@
         }
     }
     async function getJWTValue() {
+        console.log("access_token:", USER_INFO.access_token)
         if (USER_INFO.access_token) {
             return USER_INFO.access_token;
         } else {
@@ -282,20 +283,24 @@
     async function handleModels(event) {
         const models = Object.keys(MODEL_INFO).map(model => ({
             id: model,
-            provider: MODEL_INFO[model].provider
+            object: "model",
+            owned_by: MODEL_INFO[model].provider,
+            parent: null,
+            permission: []
         }));
-
-        console.log(JSON.stringify(models));
-        
+    
         return event.respondWith(
-            new Response(JSON.stringify(models), {
-              status: 200,
-              headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-              }
+            new Response(JSON.stringify({
+                data: models,
+                object: "list"
+            }), {
+                status: 200,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                }
             })
-          );
+        );
     }
 
     function respondWithNotFound(event) {
